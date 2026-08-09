@@ -13,38 +13,32 @@ package org.eclipse.lyo.tools.codegenerator.ui.common;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.net.URL;
 import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
 
 import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.acceleo.engine.service.AbstractAcceleoGenerator;
 import org.eclipse.acceleo.engine.utils.AcceleoLaunchingUtil;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.jface.operation.IRunnableWithProgress;
-import org.osgi.framework.Bundle;
 
-import adaptorinterface.AdaptorInterface;
 import adaptorinterface.Specification;
 
-import org.eclipse.lyo.oslc4j.codegenerator.java.main.Generate;
-import org.eclipse.lyo.oslc4j.codegenerator.java.main.GenerateSpecification;
+import adaptorinterface.AdaptorInterface;
+import org.eclipse.lyo.oslc4j.codegenerator.python.main.Generate;
+import org.eclipse.lyo.oslc4j.codegenerator.python.main.GenerateSpecification;
 import org.eclipse.lyo.tools.codegenerator.ui.Activator;
 import org.eclipse.lyo.tools.codegenerator.ui.popupMenus.DialogServices;
 import org.eclipse.ui.PlatformUI;
 
 
 /**
- * Main entry point of the 'Codegenerator' generation module.
+ * Main entry point of the Python 'Codegenerator' generation module.
  */
-public class GenerateAll {
+public class GenerateAllPython {
 
 	/**
 	 * The output folder.
@@ -54,7 +48,10 @@ public class GenerateAll {
 	private AbstractAcceleoGenerator generator;
 
 	/**
-	 * Constructor.
+	 * Constructor for URI-based generation.
+	 * 
+	 * <p>Since Python code generation uses the AdaptorInterface as its entrypoint,
+	 * this constructor uses the Python Generate generator to match Java.</p>
 	 * 
 	 * @param modelURI
 	 *            is the URI of the model.
@@ -64,13 +61,12 @@ public class GenerateAll {
 	 *            are the other arguments
 	 * @throws IOException
 	 *             Thrown when the output cannot be saved.
-	 * @generated
 	 */
-	public GenerateAll(URI modelURI, File targetFolder, List<? extends Object> arguments) throws IOException {
+	public GenerateAllPython(URI modelURI, File targetFolder, List<? extends Object> arguments) throws IOException {
 		generator = new Generate(modelURI, targetFolder, arguments);
 		String generationID = AcceleoLaunchingUtil.computeUIProjectID(
 				"org.eclipse.lyo.oslc4j.codegenerator",
-				"org.eclipse.lyo.oslc4j.codegenerator.java.main.Generate",
+				"org.eclipse.lyo.oslc4j.codegenerator.python.main.Generate",
 				modelURI.toString(),
 				targetFolder.toString(),
 				new ArrayList<String>());
@@ -78,11 +74,11 @@ public class GenerateAll {
 		this.targetFolder = targetFolder;
 	}
 
-	public GenerateAll(AdaptorInterface adaptorInterface, File targetFolder, List<? extends Object> arguments) throws IOException {
+	public GenerateAllPython(AdaptorInterface adaptorInterface, File targetFolder, List<? extends Object> arguments) throws IOException {
 		generator = new Generate(adaptorInterface, targetFolder, arguments);
 		String generationID = AcceleoLaunchingUtil.computeUIProjectID(
 				"org.eclipse.lyo.oslc4j.codegenerator",
-				"org.eclipse.lyo.oslc4j.codegenerator.java.main.Generate",
+				"org.eclipse.lyo.oslc4j.codegenerator.python.main.Generate",
 				adaptorInterface.toString(),
 				targetFolder.toString(),
 				new ArrayList<String>());
@@ -90,11 +86,11 @@ public class GenerateAll {
 		this.targetFolder = targetFolder;
 	}
 
-	public GenerateAll(Specification specification, File targetFolder, List<? extends Object> arguments) throws IOException {
+	public GenerateAllPython(Specification specification, File targetFolder, List<? extends Object> arguments) throws IOException {
 		generator = new GenerateSpecification(specification, targetFolder, arguments);
 		String generationID = AcceleoLaunchingUtil.computeUIProjectID(
 				"org.eclipse.lyo.oslc4j.codegenerator",
-				"org.eclipse.lyo.oslc4j.codegenerator.java.main.GenerateSpecification",
+				"org.eclipse.lyo.oslc4j.codegenerator.python.main.GenerateSpecification",
 				specification.toString(),
 				targetFolder.toString(),
 				new ArrayList<String>());
@@ -106,11 +102,8 @@ public class GenerateAll {
 	/**
 	 * Launches the generation.
 	 *
-	 * @param monitor
-	 *            This will be used to display progress information to the user.
 	 * @throws IOException
 	 *             Thrown when the output cannot be saved.
-	 * @generated
 	 */
 	public void doGenerate() throws IOException {
 		if (!targetFolder.exists()) {
@@ -124,7 +117,7 @@ public class GenerateAll {
 					monitor.subTask("Loading...");
 					monitor.worked(1);
 					generator.doGenerate(BasicMonitor.toMonitor(monitor));
-				    DialogServices.showMessage("Generation Success", "Generation completed on \"" + targetFolder.toString() + "\".");
+				    DialogServices.showMessage("Generation Success", "Python code generation completed on \"" + targetFolder.toString() + "\".");
 				} catch (IOException e) {
 				    IStatus status = new Status(IStatus.ERROR, Activator.PLUGIN_ID, e.getMessage(), e);
 				    Activator.getDefault().getLog().log(status);
@@ -141,55 +134,6 @@ public class GenerateAll {
 		    DialogServices.showMessage("Exception!", "an Exception occurred during the generation process. Please see the error log.");
 		}
 
-	}
-	
-	/**
-	 * Finds the template in the plug-in. Returns the template plug-in URI.
-	 * 
-	 * @param bundleID
-	 *            is the plug-in ID
-	 * @param relativePath
-	 *            is the relative path of the template in the plug-in
-	 * @return the template URI
-	 * @throws IOException
-	 * @generated
-	 */
-	@SuppressWarnings("unchecked")
-	private URI getTemplateURI(String bundleID, IPath relativePath) throws IOException {
-		Bundle bundle = Platform.getBundle(bundleID);
-		if (bundle == null) {
-			// no need to go any further
-			return URI.createPlatformResourceURI(new Path(bundleID).append(relativePath).toString(), false);
-		}
-		URL url = bundle.getEntry(relativePath.toString());
-		if (url == null && relativePath.segmentCount() > 1) {
-			Enumeration<URL> entries = bundle.findEntries("/", "*.emtl", true);
-			if (entries != null) {
-				String[] segmentsRelativePath = relativePath.segments();
-				while (url == null && entries.hasMoreElements()) {
-					URL entry = entries.nextElement();
-					IPath path = new Path(entry.getPath());
-					if (path.segmentCount() > relativePath.segmentCount()) {
-						path = path.removeFirstSegments(path.segmentCount() - relativePath.segmentCount());
-					}
-					String[] segmentsPath = path.segments();
-					boolean equals = segmentsPath.length == segmentsRelativePath.length;
-					for (int i = 0; equals && i < segmentsPath.length; i++) {
-						equals = segmentsPath[i].equals(segmentsRelativePath[i]);
-					}
-					if (equals) {
-						url = bundle.getEntry(entry.getPath());
-					}
-				}
-			}
-		}
-		URI result;
-		if (url != null) {
-			result = URI.createPlatformPluginURI(new Path(bundleID).append(new Path(url.getPath())).toString(), false);
-		} else {
-			result = URI.createPlatformResourceURI(new Path(bundleID).append(relativePath).toString(), false);
-		}
-		return result;
 	}
 
 }
