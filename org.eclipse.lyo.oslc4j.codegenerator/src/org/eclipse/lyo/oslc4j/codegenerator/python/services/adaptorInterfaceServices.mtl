@@ -1,7 +1,7 @@
 [comment encoding = UTF-8 /]
 [comment
 /*
- * Copyright (c) 2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -15,10 +15,12 @@
  */
 /]
 [module adaptorInterfaceServices('http://org.eclipse.lyo/oslc4j/adaptorInterface', 'http://org.eclipse.lyo/oslc4j/vocabulary')/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::adaptorInterfaceServices/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::domainSpecificationServices/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::resourceServices/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::vocabularyServices/]
 
-[import org::eclipse::lyo::oslc4j::codegenerator::python::services::vocabularyServices/]
-[import org::eclipse::lyo::oslc4j::codegenerator::python::services::domainSpecificationServices/]
-[import org::eclipse::lyo::oslc4j::codegenerator::python::services::resourceServices/]
+[import org::eclipse::lyo::oslc4j::codegenerator::python::services::serviceProviderServices/]
 
 [query public serviceProviders(anAdaptorInterface : AdaptorInterface) : Sequence(ServiceProvider) =
 (if (not anAdaptorInterface.serviceProviderCatalog.oclIsUndefined()) then
@@ -50,11 +52,6 @@ anAdaptorInterface.serviceProviders()->collectNested(aServiceProvider : ServiceP
 )
 /]
 
-[query public relevantResources(aSpecification : Specification) : Set(Resource) =
-    (aSpecification.domainSpecifications.resources
-    ->union(aSpecification.domainSpecifications.resources.allRelatedResources()))->flatten()->asSet()
-/]
-
 [query public servicedResources(aWebService: WebService) : Set(Resource) = 
 aWebService.resourceTypes->asSet()
 /]
@@ -70,32 +67,10 @@ anAdaptorInterface.serviceProviders()->collectNested(aServiceProvider : ServiceP
 )
 /]
 
-[query public relevantDomainSpecifications(aSpecification : Specification) : Set(DomainSpecification) =
-aSpecification.domainSpecifications->union(
-    relevantResources(aSpecification)->collectNested(aResource : Resource | aResource.definingDomainSpecification())->flatten()->asSet()
-)
-/]
-
 [query public relevantVocabularies(anAdaptorInterface : AdaptorInterface) : Set(Vocabulary) =
 anAdaptorInterface.relevantDomainSpecifications()->collectNested(aDomainSpecification : DomainSpecification |
     relevantVocabularies(aDomainSpecification)
 )->flatten()->asSet()
-/]
-[query public relevantVocabularies(aDomainSpecification: DomainSpecification) : Set(Vocabulary) =
-aDomainSpecification.resources->select(not describes.oclIsUndefined())->collect(aResource : Resource | definingVocabulary(aResource.describes))
-->union(
-    aDomainSpecification.resourceProperties->select(not propertyDefinition.oclIsUndefined())->collect(aResourceProperty : ResourceProperty | definingVocabulary(aResourceProperty.propertyDefinition))
-)->asSet()
-/]
-
-[query public relevantVocabularies(aSpecification : Specification) : Set(Vocabulary) =
-relevantDomainSpecifications(aSpecification)->collectNested(aDomainSpecification : DomainSpecification | 
-    relevantVocabularies(aDomainSpecification)
-)->flatten()->asSet()
-/]
-
-[query public domainSpecificationImplicitVocabularyNamespaceConstantName(aDomainSpecification: DomainSpecification) : String =
-'NS_'.concat(aDomainSpecification.namespacePrefix.name.toUpperCase())
 /]
 
 [query public servicedResources(aRequiredAdaptor : RequiredAdaptor) : Set(Resource) =
@@ -126,36 +101,6 @@ relevantResources(aRequiredAdaptor)->collectNested(aResource : Resource |
 )->flatten()->asSet()
 /]
 
-[query public servicedResources(aService : Service) : Set(Resource) =
-aService.creationFactories.resourceTypes->asSet()
-    ->union(aService.queryCapabilities.resourceTypes->asSet())
-    ->union(aService.basicCapabilities.resourceTypes->asSet())
-    ->union(aService.creationDialogs.resourceTypes->asSet())
-    ->union(aService.selectionDialogs.resourceTypes->asSet())
+[query public domainSpecificationImplicitVocabularyNamespaceConstantName(aDomainSpecification: DomainSpecification) : String =
+'NS_'.concat(aDomainSpecification.namespacePrefix.name.toUpperCase())
 /]
-
-[query public relevantResources(aService : Service) : Set(Resource) =
-(servicedResources(aService)
-->union(servicedResources(aService).allRelatedResources()))->flatten()->asSet()
-/]
-
-[query public relevantDomainSpecifications(aService : Service) : Set(DomainSpecification) =
-relevantResources(aService)->collectNested(aResource : Resource |
-    definingDomainSpecification(aResource)
-    ->union(aResource.allProperties()->asSet()->collectNested(aResourceProperty : ResourceProperty | aResourceProperty.definingDomainSpecification()))
-)->flatten()->asSet()
-->union(Set{aService.domainSpecification})
-/]
-
-[query public servicedResources(aServiceProvider : ServiceProvider) : Set(Resource) =
-aServiceProvider.services->collectNested(aService : Service | servicedResources(aService))->flatten()->asSet()
-/]
-
-[query public relevantResources(aServiceProvider : ServiceProvider) : Set(Resource) =
-aServiceProvider.services->collectNested(aService : Service | relevantResources(aService))->flatten()->asSet()
-/]
-
-[query public relevantDomainSpecifications(aServiceProvider : ServiceProvider) : Set(DomainSpecification) =
-aServiceProvider.services->collectNested(aService : Service | relevantDomainSpecifications(aService))->flatten()->asSet()
-/]
-

@@ -1,7 +1,7 @@
 [comment encoding = UTF-8 /]
 [comment
 /*
- * Copyright (c) 2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -15,16 +15,9 @@
  */
 /]
 [module vocabularyServices('http://org.eclipse.lyo/oslc4j/adaptorInterface', 'http://org.eclipse.lyo/oslc4j/vocabulary')/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::services/]
 
 [import org::eclipse::lyo::oslc4j::codegenerator::python::services::services/]
-
-[query public definingVocabulary(aProperty: Property) : Vocabulary =
-aProperty.eContainer(Vocabulary)
-/]
-
-[query public definingVocabulary(aClass: Class) : Vocabulary =
-aClass.eContainer(Vocabulary)
-/]
 
 [query public pythonPackageNameForConstants(aVocabulary: Vocabulary, anAdaptorInterface : AdaptorInterface, defaultPackageName : String) : String =
 pythonPackageName(aVocabulary, anAdaptorInterface, defaultPackageName)

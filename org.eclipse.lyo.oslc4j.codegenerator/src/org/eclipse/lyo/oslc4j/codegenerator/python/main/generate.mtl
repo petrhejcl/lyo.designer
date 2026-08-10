@@ -1,7 +1,7 @@
 [comment encoding = UTF-8 /]
 [comment
 /*
- * Copyright (c) 2020 Contributors to the Eclipse Foundation
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation
  *
  * See the NOTICE file(s) distributed with this work for additional
  * information regarding copyright ownership.
@@ -15,12 +15,15 @@
  */
 /]
 [module generate('http://org.eclipse.lyo/oslc4j/adaptorInterface', 'http://org.eclipse.lyo/oslc4j/vocabulary', 'http://www.eclipse.org/emf/2002/Ecore')]
-[import org::eclipse::lyo::oslc4j::codegenerator::python::services::resourceServices/]
-[import org::eclipse::lyo::oslc4j::codegenerator::python::services::services/]
-[import org::eclipse::lyo::oslc4j::codegenerator::python::services::adaptorInterfaceServices/]
-[import org::eclipse::lyo::oslc4j::codegenerator::python::staticFiles::generateLicenseFiles/]
-[import org::eclipse::lyo::oslc4j::codegenerator::python::services::fileServices/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::resourceServices/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::services/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::adaptorInterfaceServices/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::staticFiles::generateLicenseFiles/]
+[import org::eclipse::lyo::oslc4j::codegenerator::common::services::fileServices/]
 
+[import org::eclipse::lyo::oslc4j::codegenerator::python::services::adaptorInterfaceServices/]
+[import org::eclipse::lyo::oslc4j::codegenerator::python::services::services/]
+[import org::eclipse::lyo::oslc4j::codegenerator::python::services::resourceServices/]
 
 [import org::eclipse::lyo::oslc4j::codegenerator::python::files::generateAdaptorPackageInfo/]
 [import org::eclipse::lyo::oslc4j::codegenerator::python::files::generateDomainSpecificationConstants/]
